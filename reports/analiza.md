@@ -28,7 +28,7 @@ Model został przetestowany na zbiorze testowym (30% danych). Oto podstawowe met
   - Klasa 0: 10601
   - Klasa 1: 10607
 
-Szczegółowe wyniki zostały zapisane w pliku [metrics.json](reports/metrics.json).
+Szczegółowe wyniki zostały zapisane w pliku [metrics.json](metrics.json).
 
 ---
 
@@ -51,9 +51,6 @@ Szczegółowe wyniki zostały zapisane w pliku [metrics.json](reports/metrics.js
 
 #### Porównanie modeli
 - Przetestowanie alternatywnych algorytmów (np. RandomForest, XGBoost) i porównanie ich wyników z GradientBoostingClassifier.
-
-#### Wdrożenie modelu
-- Przygotowanie interfejsu API w Pythonie (np. z wykorzystaniem Flask lub FastAPI) do umożliwienia integracji modelu z systemami produkcyjnymi.
 
 #### Rozszerzenie zbioru danych
 - Rozważenie wzbogacenia zbioru danych o nowe cechy, takie jak genetyczne predyspozycje lub dane socjoekonomiczne, aby poprawić jakość prognozowania.
