@@ -43,7 +43,7 @@ pip install -r requirements.txt
 ### 3. Podział danych
 Uruchom skrypt `src/data_cleaning.py`, aby podzielić dane na zbiory trenowania i doszkalania:
 ```bash
-python src/split_data.py
+python src/data_cleaning.py
 ```
 
 ### 4. Analiza danych i trenowanie modelu
