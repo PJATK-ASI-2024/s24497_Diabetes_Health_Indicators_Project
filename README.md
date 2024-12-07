@@ -27,7 +27,7 @@ Celem tego projektu jest stworzenie modelu predykcyjnego, który przewiduje ryzy
 - **Trenowanie modelu**: 70% danych (używane do początkowego trenowania modelu).
 - **Doszkalanie modelu**: 30% danych (zachowane do dalszego doszkalania).
   
-Dane zostaną podzielone za pomocą skryptu `src/split_data.py`, który automatycznie zapisze zbiory w katalogu `data/`.
+Dane zostaną podzielone za pomocą skryptu `src/data_cleaning.py`, który automatycznie zapisze zbiory w katalogu `data/`.
 
 ## 📚 Instrukcja użycia
 
@@ -41,7 +41,7 @@ pip install -r requirements.txt
 ```
 
 ### 3. Podział danych
-Uruchom skrypt `src/split_data.py`, aby podzielić dane na zbiory trenowania i doszkalania:
+Uruchom skrypt `src/data_cleaning.py`, aby podzielić dane na zbiory trenowania i doszkalania:
 ```bash
 python src/split_data.py
 ```
@@ -54,3 +54,53 @@ Przeprowadź analizę i trenuj model, otwierając notebooki w katalogu `notebook
 ## 📋 Wymagania systemowe
 - Python 3.x
 - Pakiety: `pandas`, `scikit-learn`, `matplotlib`, `seaborn`, `numpy`
+
+
+### 🔍 Automatyczna analiza modeli (AutoML)
+
+Do automatycznego doboru modelu wykorzystano bibliotekę **TPOT**, która przetestowała wiele modeli klasyfikacyjnych i ich hiperparametry.
+
+- Najlepszy model: **GradientBoostingClassifier**
+- Parametry: 
+  - `max_depth=6`
+  - `min_samples_leaf=17`
+  - `subsample=0.55`
+  - `learning_rate=0.1`
+
+### 📊 Wyniki ewaluacji modelu
+
+Model został przetestowany na zbiorze testowym (30% danych). Oto podstawowe metryki:
+
+- **Dokładność (Accuracy):** 0.7558
+- **Precyzja (Precision):**
+  - Klasa 0 (brak cukrzycy): 0.78
+  - Klasa 1 (cukrzyca): 0.73
+- **Recall:**
+  - Klasa 0: 0.71
+  - Klasa 1: 0.80
+- **F1-Score:**
+  - Klasa 0: 0.74
+  - Klasa 1: 0.77
+- **Wsparcie (Support):**
+  - Klasa 0: 10601
+  - Klasa 1: 10607
+
+Szczegółowe wyniki zapisano w pliku [metrics.json](reports/metrics.json).
+
+### 📈 Wizualizacje danych
+
+W ramach analizy eksploracyjnej danych wygenerowano następujące wizualizacje:
+
+1. **Histogramy zmiennych numerycznych**  
+   ![Histogramy](reports/histograms.png)
+
+2. **Wykresy pudełkowe dla wybranych zmiennych**  
+   ![Boxplots](reports/boxplots.png)
+
+3. **Macierz korelacji**  
+   ![Correlation Matrix](reports/correlation_matrix.png)
+
+### 🌐 Raport z analizy eksploracyjnej
+Dodatkowo, automatyczny raport z eksploracyjnej analizy danych został wygenerowany za pomocą **Sweetviz** i zapisany jako interaktywny HTML. Możesz go otworzyć w przeglądarce, klikając poniższy link:
+
+👉 [Raport Sweetviz](reports/sweetviz_report.html)
