@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 import joblib
 import numpy as np
 import requests
+import os
 
 default_args = {
     'owner': 'airflow',
@@ -30,10 +31,10 @@ def test_model():
 
 def send_alert():
     requests.post("https://api.sendgrid.com/v3/mail/send",
-        headers={"Authorization": "Bearer YOUR_SENDGRID_API_KEY"},
+        headers={"Authorization": "Bearer" + os.environ["SENDGRID_API_KEY"],},
         json={
-            "personalizations": [{"to": [{"email": "admin@example.com"}]}],
-            "from": {"email": "admin@example.com"},
+            "personalizations": [{"to": [{"email": "pawelpllukasiewicz@gmail.com"}]}],
+            "from": {"email": "s24497@pjwstk.edu.pl"},
             "subject": "❗ Uwaga: Problem z modelem ML",
             "content": [{"type": "text/plain", "value": "Model wykazuje niski poziom dokładności!"}]
         })
