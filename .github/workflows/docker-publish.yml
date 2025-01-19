@@ -1,0 +1,62 @@
+name: Build and Publish Model API
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Pobranie kodu
+      - name: Check out the code
+        uses: actions/checkout@v2
+
+      # 2. Instalacja Pythona i trening modelu
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install -r src/api/requirements.txt
+
+      - name: Train model
+        run: python src/train_model.py
+
+      # 3. Logowanie do Docker Hub
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # 4. Budowanie obrazu Docker
+      - name: Build Docker image
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/diabetes-api:latest src/api/
+
+      # 5. Testowanie API
+      - name: Run Docker container for testing
+        run: |
+          docker run -d -p 5000:5000 --name api_test ${{ secrets.DOCKER_USERNAME }}/diabetes-api:latest
+          sleep 5  # Czekaj na uruchomienie API
+          curl -X POST http://localhost:5000/predict -H "Content-Type: application/json" -d '{"bmi": 28.5, "blood_pressure": 120, "cholesterol": 200, "physical_activity": 3, "smoking": 0, "age": 45}'
+
+      # 6. Wysyłanie powiadomień e-mail w razie sukcesu
+      - name: Send success email
+        run: |
+          curl -X POST "https://api.sendgrid.com/v3/mail/send" \
+          -H "Authorization: Bearer ${{ secrets.EMAIL_API_KEY }}" \
+          -H "Content-Type: application/json" \
+          -d '{
+                "personalizations": [{"to": [{"email": "pawelpllukasiewicz@gmail.com"}]}],
+                "from": {"email": "s24497@pjwstk.edu.pl"},
+                "subject": "Deployment Successful",
+                "content": [{"type": "text/plain", "value": "Your Docker image has been deployed successfully!"}]
+              }'
+
+      # 7. Publikacja na Docker Hub
+      - name: Push Docker image to Docker Hub
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/diabetes-api:latest

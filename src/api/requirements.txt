@@ -1,0 +1,11 @@
+pandas
+matplotlib
+seaborn
+sweetviz
+tpot
+numpy
+scikit-learn
+fastapi
+uvicorn
+apache-airflow
+joblib
