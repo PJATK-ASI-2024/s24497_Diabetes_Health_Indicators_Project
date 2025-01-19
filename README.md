@@ -8,14 +8,9 @@ Celem tego projektu jest stworzenie modelu predykcyjnego, który przewiduje ryzy
 - **Źródło danych**: [Kaggle - Diabetes Health Indicators Dataset](https://www.kaggle.com/datasets/alexteboul/diabetes-health-indicators-dataset)
 - **Liczba rekordów**: Ponad 250,000 rekordów
 - **Atrybuty**:
-  - Zmienna docelowa (`diabetes_binary`): 1 – pacjent choruje na cukrzycę, 0 – pacjent nie choruje.
-  - Inne wskaźniki zdrowotne, m.in.:
-    - **BMI**: Wskaźnik masy ciała.
-    - **Ciśnienie krwi**: Wartość skurczowa i rozkurczowa.
-    - **Poziom cholesterolu**: Cholesterol całkowity i HDL.
-    - **Aktywność fizyczna**: Poziom aktywności fizycznej.
-    - **Palenie papierosów**: Informacja, czy pacjent pali papierosy.
-    - **Inne czynniki ryzyka**: Wiek, płeć i inne.
+  - **Zmienna docelowa (`diabetes_binary`)**: 1 – pacjent choruje na cukrzycę, 0 – pacjent nie choruje.
+  - **Inne wskaźniki zdrowotne**:
+    - `BMI`, `HighBP`, `HighChol`, `CholCheck`, `Smoker`, `Stroke`, `HeartDiseaseorAttack`, `PhysActivity`, `Fruits`, `Veggies`, `HvyAlcoholConsump`, `AnyHealthcare`, `NoDocbcCost`, `GenHlth`, `MentHlth`, `PhysHlth`, `DiffWalk`, `Sex`, `Age`, `Education`, `Income`
 
 ## 🎯 Cele projektu
 1. **Eksploracja i analiza danych**: Zrozumienie rozkładu wskaźników zdrowotnych i ich związku z ryzykiem cukrzycy.
@@ -23,84 +18,91 @@ Celem tego projektu jest stworzenie modelu predykcyjnego, który przewiduje ryzy
 3. **Walidacja i testowanie**: Ewaluacja skuteczności modelu na zbiorze testowym.
 4. **Publikacja i wdrożenie**: Przygotowanie modelu do wdrożenia jako API, z możliwością dalszego doszkalania na nowych danych.
 
-## 📐 Podział danych
-- **Trenowanie modelu**: 70% danych (używane do początkowego trenowania modelu).
-- **Doszkalanie modelu**: 30% danych (zachowane do dalszego doszkalania).
-  
-Dane zostaną podzielone za pomocą skryptu `src/data_cleaning.py`, który automatycznie zapisze zbiory w katalogu `data/`.
+## 📂 Struktura projektu
+- `src/` - Kod źródłowy projektu
+  - `data/` - Skrypty do pobierania i przetwarzania danych
+  - `models/` - Definicje modeli
+  - `train_model.py` - Skrypt do trenowania modelu
+  - `api/` - Kod aplikacji API
+    - `app.py` - Główna aplikacja FastAPI
+    - `requirements.txt` - Lista zależności
+- `airflow_dags/` - Definicje DAGów dla Apache Airflow
+- `data/` - Zbiór danych
+- `reports/` - Wygenerowane raporty
 
-## 📚 Instrukcja użycia
+## 🚀 Uruchomienie projektu
 
-### 1. Pobranie danych
-Pobierz dane z Kaggle i zapisz je w folderze `data/raw/` jako `diabetes_health_indicators.csv`.
+### Wymagania wstępne
+- Python 3.10
+- [Docker](https://www.docker.com/)
+- [Apache Airflow](https://airflow.apache.org/)
 
-### 2. Przygotowanie środowiska
-Zainstaluj wymagane biblioteki za pomocą poniższego polecenia:
+### Instalacja
 ```bash
-pip install -r requirements.txt
+git clone https://github.com/PJATK-ASI-2024/s24497_Diabetes_Health_Indicators_Project.git
+cd s24497_Diabetes_Health_Indicators_Project
+pip install -r src/api/requirements.txt
 ```
 
-### 3. Podział danych
-Uruchom skrypt `src/data_cleaning.py`, aby podzielić dane na zbiory trenowania i doszkalania:
+### 🔍 Trening modelu
 ```bash
-python src/data_cleaning.py
+python src/train_model.py
+```
+Model zostanie zapisany jako `model.pkl` w katalogu `src/api/`.
+
+### 🖥️ Uruchomienie API
+```bash
+cd src/api/
+uvicorn app:app --host 0.0.0.0 --port 5000 --reload
+```
+Aplikacja będzie dostępna pod adresem `http://localhost:5000`.
+
+### 📌 Testowanie API
+```bash
+curl -X POST http://localhost:5000/predict \
+     -H "Content-Type: application/json" \
+     -d '{
+          "bmi": 28.5, 
+          "blood_pressure": 120,
+          "cholesterol": 200,
+          "physactivity": 3,
+          "smoker": 0,
+          "age": 45,
+          "highbp": 1,
+          "highchol": 1,
+          "cholcheck": 1,
+          "stroke": 0,
+          "heartdiseaseorattack": 0,
+          "hvyalcoholconsump": 0,
+          "anyhealthcare": 1,
+          "nodocbccost": 0,
+          "genhlth": 3,
+          "menthlth": 5,
+          "physhlth": 7,
+          "diffwalk": 0,
+          "education": 4,
+          "income": 3,
+          "fruits": 1,
+          "veggies": 1,
+          "sex": 1
+        }'
 ```
 
-### 4. Analiza danych i trenowanie modelu
-Przeprowadź analizę i trenuj model, otwierając notebooki w katalogu `notebooks/`:
-- `exploratory_data_analysis.ipynb`: Analiza eksploracyjna wskaźników zdrowotnych.
-- `model_training.ipynb`: Notebook z trenowaniem i oceną modelu predykcyjnego.
+### 🐳 Uruchomienie z Dockerem
+```bash
+docker build -t diabetes-api src/api/
+docker run -d -p 5000:5000 --name diabetes_api_container diabetes-api
+```
 
-## 📋 Wymagania systemowe
-- Python 3.x
-- Pakiety: `pandas`, `scikit-learn`, `matplotlib`, `seaborn`, `numpy`
+### ⚙️ Automatyzacja z Apache Airflow
+Projekt wykorzystuje Apache Airflow do automatyzacji procesów ETL oraz trenowania modelu. Wszystkie DAG-i znajdują się w katalogu `airflow_dags/`. Aby uruchomić Airflow:
+
+```bash
+export AIRFLOW_HOME=~/airflow
+pip install apache-airflow
+airflow standalone
+```
+
+Następnie w przeglądarce otwórz `http://localhost:8080` i skonfiguruj DAG-i.
 
 
-### 🔍 Automatyczna analiza modeli (AutoML)
-
-Do automatycznego doboru modelu wykorzystano bibliotekę **TPOT**, która przetestowała wiele modeli klasyfikacyjnych i ich hiperparametry.
-
-- Najlepszy model: **GradientBoostingClassifier**
-- Parametry: 
-  - `max_depth=6`
-  - `min_samples_leaf=17`
-  - `subsample=0.55`
-  - `learning_rate=0.1`
-
-### 📊 Wyniki ewaluacji modelu
-
-Model został przetestowany na zbiorze testowym (30% danych). Oto podstawowe metryki:
-
-- **Dokładność (Accuracy):** 0.7558
-- **Precyzja (Precision):**
-  - Klasa 0 (brak cukrzycy): 0.78
-  - Klasa 1 (cukrzyca): 0.73
-- **Recall:**
-  - Klasa 0: 0.71
-  - Klasa 1: 0.80
-- **F1-Score:**
-  - Klasa 0: 0.74
-  - Klasa 1: 0.77
-- **Wsparcie (Support):**
-  - Klasa 0: 10601
-  - Klasa 1: 10607
-
-Szczegółowe wyniki zapisano w pliku [metrics.json](reports/metrics.json).
-
-### 📈 Wizualizacje danych
-
-W ramach analizy eksploracyjnej danych wygenerowano następujące wizualizacje:
-
-1. **Histogramy zmiennych numerycznych**  
-   ![Histogramy](reports/histograms.png)
-
-2. **Wykresy pudełkowe dla wybranych zmiennych**  
-   ![Boxplots](reports/boxplots.png)
-
-3. **Macierz korelacji**  
-   ![Correlation Matrix](reports/correlation_matrix.png)
-
-### 🌐 Raport z analizy eksploracyjnej
-Dodatkowo, automatyczny raport z eksploracyjnej analizy danych został wygenerowany za pomocą **Sweetviz** i zapisany jako interaktywny HTML. Możesz go otworzyć w przeglądarce, klikając poniższy link:
-
-👉 [Raport Sweetviz](reports/sweetviz_report.html)
